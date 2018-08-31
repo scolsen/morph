@@ -1,8 +1,10 @@
 ;;;; Implementation of Semigroups
 
-(defpackage semigroup
-  (:use cl)
-  (:export <>))
+(defpackage morph.semigroup
+  (:use :cl)
+  (:export :<>))
+
+(in-package morph.semigroup)
 
 (defgeneric <> (x y)
             (:documentation "Associative binary operation.")
@@ -15,4 +17,3 @@
             (:method ((f function)(g function))
                      (lambda (&rest args) 
                        (<> (apply f args) (apply g args)))))
-
