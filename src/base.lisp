@@ -1,42 +1,38 @@
+(defpackage morph.base
+  (:use :cl))
+
+(defun const (x)
+  (lambda (y)
+    (declare (ignore y))
+    x))
+
+(defun flip (f) 
+  (lambda (x y) 
+    (funcall f y x)))
+
 (defun partial (f &rest args)
   (lambda (&rest args2)
     (apply f (append args args2))))
+
+(defun partiar (f &rest args)
+  (partial (flip f) args))
 
 (defun compose (f g)
   (lambda (&rest args)
     (apply g (list (apply f args)))))
 
-(defun beta (f &rest args)
-  (apply f args))
-
-(defun foldr (f init seq)
-  "Reduce, only initial value is positional.
-   This makes for easier passing around in HOFs."
-  (reduce f seq :initial-value init))
-
 (defun foldl (f x xs)
   (if (null xs)
       x
-      (foldl f (beta f x xs) (rest xs))))
+      (foldl f (funcall f x xs) (rest xs))))
 
 (defun foldr (f x xs)
   (if (null xs)
       x
-      (beta f (first xs) (foldr f x (rest xs)))))
-
-(defun foldt ()
-  ())
-
-(defun pairs (f xs)
-  (let ((id (mempty (first xs))))
-    (labels ((_pairs (f xs i) 
-                     (if (null xs)
-                         i
-                         (beta f (first xs) (first (rest xs)) 
-                                 (_pairs f (rest (rest xs)) id)))))
-      (_pairs f xs id))
-    ))
+      (funcall f (first xs) (foldr f x (rest xs)))))
 
 (defun zip (f xs ys)
   "Implementation of zip."
-  ())
+  (cond ((null xs) nil)
+        ((null ys) nil)
+        (t (cons (funcall f (first xs) (first ys)) (zip f (rest xs) (rest ys))))))
